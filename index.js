@@ -43,9 +43,15 @@ function generarLink(key) {
   return s3.getSignedUrl("getObject", {
     Bucket: "videos",
     Key: key,
-    Expires: 300, // 5 minutos
+
+    Expires: 3600, // 1 hora (IMPORTANTE)
+
+    ResponseContentType: "video/mp4",
+    ResponseContentDisposition: "inline",
+
   });
 }
+
 
 // 📺 Endpoint principal (canal 24/7)
 app.get("/tv", (req, res) => {
