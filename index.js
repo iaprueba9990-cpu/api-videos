@@ -5,12 +5,7 @@ import cors from "cors";
 const app = express();
 app.use(cors());
 
-/* ===============================
-   🔐 IDrive e2 (S3 compatible)
-   =============================== */
-AWS.config.update({
-  correctClockSkew: true, // 🔥 CLAVE para evitar 403 por hora
-});
+AWS.config.update({ correctClockSkew: true });
 
 const s3 = new AWS.S3({
   endpoint: "https://s3.us-east-1.idrivee2.com",
@@ -18,11 +13,11 @@ const s3 = new AWS.S3({
   secretAccessKey: process.env.IDRIVE_SECRET,
   signatureVersion: "v4",
   region: "us-east-1",
-  s3ForcePathStyle: true, // 🔥 OBLIGATORIO en IDrive
+  s3ForcePathStyle: true, // ✅ OBLIGATORIO en IDrive e2
 });
 
 /* ===============================
-   🎬 Lista de videos
+   🎬 Videos
    =============================== */
 const videos = [
   "deca-dence/01.mp4",
@@ -39,61 +34,38 @@ const videos = [
   "deca-dence/12.mp4",
 ];
 
-/* ===============================
-   ⏰ Video según hora UTC (30 min)
-   =============================== */
 function videoPorHora() {
   const ahora = new Date();
-  const minutosTotales =
-    ahora.getUTCHours() * 60 + ahora.getUTCMinutes();
-  const bloque = Math.floor(minutosTotales / 30);
-  return videos[bloque % videos.length];
+  const minutos = ahora.getUTCHours() * 60 + ahora.getUTCMinutes();
+  return videos[Math.floor(minutos / 30) % videos.length];
 }
 
-/* ===============================
-   🔗 Link firmado (SIN extras)
-   =============================== */
 function generarLink(key) {
   return s3.getSignedUrl("getObject", {
     Bucket: "videos",
     Key: key,
-    Expires: 3600, // 1 hora
-    // ❌ NO ResponseContentType
-    // ❌ NO ResponseContentDisposition
+    Expires: 3600,
+    ResponseContentType: "video/mp4",
+    ResponseContentDisposition: "inline",
   });
 }
 
-/* ===============================
-   📺 Canal 24/7
-   =============================== */
 app.get("/tv", (req, res) => {
-  try {
-    const video = videoPorHora();
-    const url = generarLink(video);
+  const video = videoPorHora();
+  const url = generarLink(video);
 
-    res.json({
-      video,
-      url,
-      serverTime: new Date().toISOString(),
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error generando video" });
-  }
+  res.json({
+    video,
+    url,
+    serverTime: new Date().toISOString(),
+  });
 });
 
-/* ===============================
-   🧪 Health check
-   =============================== */
-app.get("/", (req, res) => {
-  res.send("API de videos funcionando 🎬");
+app.get("/", (_, res) => {
+  res.send("API de TV funcionando 📺");
 });
 
-/* ===============================
-   🚀 Start server
-   =============================== */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log("API corriendo en puerto", PORT);
+  console.log("API lista en puerto", PORT);
 });
-
