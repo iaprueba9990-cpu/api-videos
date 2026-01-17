@@ -12,7 +12,10 @@ const s3 = new AWS.S3({
   secretAccessKey: process.env.IDRIVE_SECRET,
   signatureVersion: "v4",
   region: "us-east-1",
+
+  s3ForcePathStyle: true, // 🔥 ESTO ES CLAVE
 });
+
 
 // 🎬 Lista de videos (ordenados)
 const videos = [
