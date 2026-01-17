@@ -46,14 +46,12 @@ function generarLink(key) {
   return s3.getSignedUrl("getObject", {
     Bucket: "videos",
     Key: key,
-
-    Expires: 3600, // 1 hora (IMPORTANTE)
-
+    Expires: 3600,
     ResponseContentType: "video/mp4",
     ResponseContentDisposition: "inline",
-
   });
 }
+
 
 
 // 📺 Endpoint principal (canal 24/7)
