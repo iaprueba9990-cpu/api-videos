@@ -11,9 +11,8 @@ const s3 = new AWS.S3({
   endpoint: "https://s3.us-east-1.idrivee2.com",
   accessKeyId: process.env.IDRIVE_KEY,
   secretAccessKey: process.env.IDRIVE_SECRET,
-  signatureVersion: "v4",
   region: "us-east-1",
-  s3ForcePathStyle: true, // ✅ OBLIGATORIO en IDrive e2
+  signatureVersion: "v4",
 });
 
 /* ===============================
@@ -45,8 +44,6 @@ function generarLink(key) {
     Bucket: "videos",
     Key: key,
     Expires: 3600,
-    ResponseContentType: "video/mp4",
-    ResponseContentDisposition: "inline",
   });
 }
 
@@ -61,11 +58,6 @@ app.get("/tv", (req, res) => {
   });
 });
 
-app.get("/", (_, res) => {
-  res.send("API de TV funcionando 📺");
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log("API lista en puerto", PORT);
-});
+app.listen(process.env.PORT || 3000, () =>
+  console.log("API lista 📺")
+);
